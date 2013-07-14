@@ -29,6 +29,10 @@ class SSLStreamReader(object):
     def process(data):
         return data
 
+    @staticmethod
+    def write_message(client, data):
+        pass
+
     def _connect(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
         self._stream = SSLIOStream(s)
@@ -45,10 +49,8 @@ class SSLStreamReader(object):
         log.debug('Reading stream from %s', self._address)
         while self._clients:
             data = yield Task(self._stream.read_until, "\n")
-
             output = self.process(data)
             for client in self._clients:
-                client.write(output)
-                client.flush()
+                self.write_message(client, output)
         self._disconnect()
         return

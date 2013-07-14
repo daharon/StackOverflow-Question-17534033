@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
-""" A TLS server that spits out random bytes every half second. """
+""" A TLS server that spits out random md5 hashes every half second. """
 
 import os
 import ssl
+from hashlib import md5
 import logging
 
 from tornado.ioloop import IOLoop, PeriodicCallback
@@ -40,7 +41,7 @@ class SpitRandomStuff(object):
 
     def _random_stuff(self):
         output = os.urandom(60)
-        self.stream.write(str(output) + "\n")
+        self.stream.write(md5(output).hexdigest() + "\n")
 
 
 if __name__ == '__main__':
