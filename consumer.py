@@ -15,7 +15,7 @@ from tornado.iostream import SSLIOStream
 from tornado.ioloop import IOLoop
 from tornado import options
 
-from lib.stream_reader import StreamReader
+from lib.stream_reader import SSLStreamReader
 
 
 log = logging.getLogger(__name__)
@@ -24,8 +24,14 @@ tls_host = 'localhost'
 tls_port = 4443
 
 
+class CustomReader(SSLStreamReader):
+    @staticmethod
+    def process(data):
+        return str(data)
+
+
 class FeedHandler(RequestHandler):
-    feed = StreamReader(tls_host, tls_port)
+    feed = CustomReader(tls_host, tls_port)
 
     @asynchronous
     def get(self):

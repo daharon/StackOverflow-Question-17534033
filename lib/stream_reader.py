@@ -2,14 +2,13 @@ import logging
 import socket
 
 from tornado.iostream import SSLIOStream
-from tornado.web import asynchronous
 from tornado.gen import coroutine, Task
 
 
 log = logging.getLogger(__name__)
 
 
-class StreamReader(object):
+class SSLStreamReader(object):
     def __init__(self, host, port):
         self._address = (host, port)
         self._stream = None
@@ -26,6 +25,10 @@ class StreamReader(object):
         self._clients.remove(client)
         log.debug('Removed client %s', client)
 
+    @staticmethod
+    def process(data):
+        return data
+
     def _connect(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
         self._stream = SSLIOStream(s)
@@ -37,16 +40,15 @@ class StreamReader(object):
         self._stream = None
         log.debug('Disconnected from %s', self._address)
 
+    @coroutine
     def _read_stream(self):
         log.debug('Reading stream from %s', self._address)
-        self._stream.read_until("\n", self._write_to_client)
+        while self._clients:
+            data = yield Task(self._stream.read_until, "\n")
 
-    def _write_to_client(self, data):
-        output = str(data)
-        if self._clients:
+            output = self.process(data)
             for client in self._clients:
                 client.write(output)
                 client.flush()
-            self._stream.read_until("\n", self._write_to_client)
-        else:
-            self._disconnect()
+        self._disconnect()
+        return
