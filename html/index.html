@@ -9,17 +9,24 @@
                 border-color: black;
             }
             #header {
-                font-size: 1.5em;
                 background-color: orange;
                 padding: 10px 10px 10px 10px;
                 border-style: solid;
+                overflow: hidden;
             }
-            #header a:visited {
+            #header-title {
+                font-size: 1.5em;
+                float: left;
+            }
+            #header-title a:visited {
                 color: black;
             }
-            #header a:link {
+            #header-title a:link {
                 color: black;
                 text-decoration: none;
+            }
+            #header-button {
+                float: right;
             }
             #content {
                 background-color: lightgrey;
@@ -35,28 +42,48 @@
             }
         </style>
         <script type="text/javascript">
+            ws = null;
+            hbutton = null;
+
             window.onload = function() {
-                var content = document.getElementById("content");
-                var ws = new WebSocket("ws://localhost:8080/feed");
+                hbutton = document.getElementById("header-button");
+            };
 
-                ws.onmessage = function(msg) {
-                    var item = document.createElement("div");
-                    item.className = "content-item";
-                    item.innerHTML = msg.data;
-                    content.insertBefore(item, content.firstChild);
+            function toggleWSConnection() {
+                if (ws == null) {
+                    var content = document.getElementById("content");
+                    ws = new WebSocket("ws://localhost:8080/feed");
 
-                    if (content.childNodes.length > 10) {
-                        content.removeChild(content.lastChild);
-                    }
+                    ws.onmessage = function(msg) {
+                        var item = document.createElement("div");
+                        item.className = "content-item";
+                        item.innerHTML = msg.data;
+                        content.insertBefore(item, content.firstChild);
+
+                        if (content.childNodes.length > 10) {
+                            content.removeChild(content.lastChild);
+                        }
+                    };
+
+                    ws.onopen = function() {
+                        hbutton.value = "Disconnect";
+                    };
+                } else {
+                    ws.close();
+                    ws = null;
+                    hbutton.value = "Connect";
                 }
             }
         </script>
     </head>
     <body>
         <div id="header">
-            <a href="http://stackoverflow.com/questions/17534033">
-                StackOverflow 17534033
-            </a>
+            <div id="header-title">
+                <a href="http://stackoverflow.com/questions/17534033">
+                    StackOverflow 17534033
+                </a>
+            </div>
+            <input type="button" id="header-button" value="Connect" onclick="toggleWSConnection();" />
         </div>
         <div id="content">
             <!--
