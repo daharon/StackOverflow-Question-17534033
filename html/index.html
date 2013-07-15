@@ -43,13 +43,8 @@
         </style>
         <script type="text/javascript">
             ws = null;
-            hbutton = null;
 
-            window.onload = function() {
-                hbutton = document.getElementById("header-button");
-            };
-
-            function toggleWSConnection() {
+            function toggleWSConnection(target) {
                 if (ws == null) {
                     var content = document.getElementById("content");
                     ws = new WebSocket("ws://localhost:8080/feed");
@@ -66,12 +61,12 @@
                     };
 
                     ws.onopen = function() {
-                        hbutton.value = "Disconnect";
+                        target.value = "Disconnect";
                     };
                 } else {
                     ws.close();
                     ws = null;
-                    hbutton.value = "Connect";
+                    target.value = "Connect";
                 }
             }
         </script>
@@ -83,7 +78,7 @@
                     StackOverflow 17534033
                 </a>
             </div>
-            <input type="button" id="header-button" value="Connect" onclick="toggleWSConnection();" />
+            <input type="button" id="header-button" value="Connect" onclick="toggleWSConnection(this);" />
         </div>
         <div id="content">
             <!--
