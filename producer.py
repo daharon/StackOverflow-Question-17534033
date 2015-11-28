@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """ A TLS server that spits out random md5 hashes every half second. """
 
@@ -26,7 +26,7 @@ class RandomServer(TCPServer):
         SpitRandomStuff(stream, address)
 
 
-class SpitRandomStuff(object):
+class SpitRandomStuff:
     def __init__(self, stream, address):
         log.info('Received connection from %s', address)
         self.address = address
@@ -40,8 +40,10 @@ class SpitRandomStuff(object):
         self.writer.stop()
 
     def _random_stuff(self):
-        output = os.urandom(60)
-        self.stream.write(md5(output).hexdigest() + "\n")
+        random_num = os.urandom(60)
+        random_str = md5(random_num).hexdigest() + "\n"
+        output = random_str.encode('utf-8')  # str -> bytes
+        self.stream.write(output)
 
 
 if __name__ == '__main__':
@@ -49,6 +51,7 @@ if __name__ == '__main__':
     server = RandomServer(ssl_options=ssl_options)
     server.listen(port)
     log.info('Listening on port %d...', port)
-    # To test from command-line:
-    # $ openssl s_client -connect localhost:<port>
-    IOLoop.instance().start()
+    try:
+        IOLoop.instance().start()
+    except (KeyboardInterrupt, SystemExit):
+        pass

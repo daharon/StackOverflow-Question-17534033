@@ -8,7 +8,7 @@ from tornado.gen import coroutine, Task
 log = logging.getLogger(__name__)
 
 
-class SSLStreamReader(object):
+class SSLStreamReader:
     def __init__(self, host, port):
         self._address = (host, port)
         self._stream = None
@@ -48,8 +48,8 @@ class SSLStreamReader(object):
     def _read_stream(self):
         log.debug('Reading stream from %s', self._address)
         while self._clients:
-            data = yield Task(self._stream.read_until, "\n")
-            output = self.process(data)
+            data = yield Task(self._stream.read_until, b"\n")
+            output = self.process(data.decode('utf-8'))
             for client in self._clients:
                 self.write_message(client, output)
         self._disconnect()

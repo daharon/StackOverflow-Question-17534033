@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 An HTTP & web socket server that reads from a TLS server stream and writes all
@@ -63,4 +63,7 @@ if __name__ == "__main__":
     application = Application(routes, **settings)
     application.listen(port)
     log.info('Listening on port %d...', port)
-    IOLoop.instance().start()
+    try:
+        IOLoop.instance().start()
+    except (KeyboardInterrupt, SystemExit):
+        pass
