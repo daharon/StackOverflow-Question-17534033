@@ -2,7 +2,7 @@ import logging
 import socket
 
 from tornado.tcpclient import TCPClient
-from tornado.gen import coroutine, Task
+from tornado.gen import coroutine
 
 
 log = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ class SSLStreamReader:
     def _read_stream(self):
         log.debug('Reading stream from %s:%d', self._host, self._port)
         while self._clients:
-            data = yield Task(self._stream.read_until, b"\n")
+            data = yield self._stream.read_until(b"\n")
             output = self.process(data.decode('utf-8'))
             for client in self._clients:
                 self.write_message(client, output)

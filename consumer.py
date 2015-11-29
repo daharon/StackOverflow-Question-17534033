@@ -7,12 +7,10 @@ data to connected web socket clients.
 
 import os
 import logging
-import socket
 from datetime import datetime
 
-from tornado.web import Application, RequestHandler, asynchronous
+from tornado.web import Application, RequestHandler
 from tornado.websocket import WebSocketHandler
-from tornado.iostream import SSLIOStream
 from tornado.ioloop import IOLoop
 from tornado import options
 
