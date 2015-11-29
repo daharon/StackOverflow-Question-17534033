@@ -2,7 +2,7 @@ Example for StackOverflow question 17534033
 
 http://stackoverflow.com/questions/17534033
 
-Tested with Python 3.5.0 and Tornado 3.1
+Tested with Python 3.5.0 and Tornado 4.3
 
 Setup environment:
 $ virtualenv --python=python3.5 env

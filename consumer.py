@@ -51,7 +51,8 @@ class FeedHandler(WebSocketHandler):
 
 
 settings = {
-    'template_path': os.path.join(os.path.dirname(__file__), 'html')
+    'template_path': os.path.join(os.path.dirname(__file__), 'html'),
+    'debug': True
 }
 routes = [
     (r'/', RootHandler),

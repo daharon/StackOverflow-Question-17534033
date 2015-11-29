@@ -1,7 +1,7 @@
 import logging
 import socket
 
-from tornado.iostream import SSLIOStream
+from tornado.tcpclient import TCPClient
 from tornado.gen import coroutine, Task
 
 
@@ -10,15 +10,17 @@ log = logging.getLogger(__name__)
 
 class SSLStreamReader:
     def __init__(self, host, port):
-        self._address = (host, port)
+        self._port = port
+        self._host = host
         self._stream = None
         self._clients = set()
 
+    @coroutine
     def add(self, client):
         self._clients.add(client)
         log.debug('Added client %s', client)
         if self._stream is None:
-            self._connect()
+            yield self._connect()
             self._read_stream()
 
     def remove(self, client):
@@ -33,20 +35,21 @@ class SSLStreamReader:
     def write_message(client, data):
         pass
 
+    @coroutine
     def _connect(self):
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
-        self._stream = SSLIOStream(s)
-        log.debug('Connecting to %s', self._address)
-        self._stream.connect(self._address)
+        log.debug('Connecting to %s:%d', self._host, self._port)
+        ssl_options = {}
+        self._stream = yield TCPClient().connect(self._host, self._port,
+                                                 socket.AF_INET, ssl_options)
 
     def _disconnect(self):
         self._stream.close()
         self._stream = None
-        log.debug('Disconnected from %s', self._address)
+        log.debug('Disconnected from %s:%d', self._host, self._port)
 
     @coroutine
     def _read_stream(self):
-        log.debug('Reading stream from %s', self._address)
+        log.debug('Reading stream from %s:%d', self._host, self._port)
         while self._clients:
             data = yield Task(self._stream.read_until, b"\n")
             output = self.process(data.decode('utf-8'))
